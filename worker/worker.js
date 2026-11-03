@@ -20,8 +20,7 @@ const ALLOW = [
   "https://victordelrosal.com",
   "https://victordelrosal.github.io",
   "http://localhost",
-  "http://127.0.0.1",
-  "null"
+  "http://127.0.0.1"
 ];
 
 function cors(origin) {
@@ -132,6 +131,9 @@ export default {
         return json({ rows: await getTours(), fetchedAt: new Date().toISOString() }, 200, origin);
       }
       if (request.method === "POST" && pathname === "/chat") {
+        const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+        const { success } = await env.CHAT_LIMIT.limit({ key: ip });
+        if (!success) return json({ error: "Too many messages, please wait a minute." }, 429, origin);
         const body = await request.json().catch(() => ({}));
         const messages = cleanMessages(body.messages);
         if (!messages.length || messages[messages.length - 1].role !== "user") {

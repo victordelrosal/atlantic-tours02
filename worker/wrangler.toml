@@ -5,3 +5,9 @@ workers_dev = true
 
 [ai]
 binding = "AI"
+
+# Per-IP cap on /chat so the public endpoint can't be used to run up model costs.
+[[ratelimits]]
+name = "CHAT_LIMIT"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
